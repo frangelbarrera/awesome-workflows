@@ -24,13 +24,8 @@ jobs:
       - name: Lint code
         run: |
           echo "Running linter..."
-          # Add your linting command here
-          # Examples:
-          # - npm run lint
-          # - flake8 .
-          # - golangci-lint run
-          # - ruff check .
-          echo "Linting complete (placeholder)"
+          echo "Add your linting command here"
+          echo "Examples: npm run lint, flake8, golangci-lint run, ruff check"
 
   test:
     name: Test
@@ -40,23 +35,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check for package.json
+        id: check_package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup Node.js
+        if: steps.check_package.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        if: file_exists('package.json')
+        if: steps.check_package.outputs.exists == 'true'
         run: npm ci
 
       - name: Run tests
-        if: file_exists('package.json')
+        if: steps.check_package.outputs.exists == 'true'
         run: npm test
 
       - name: Run tests (placeholder)
-        if: !file_exists('package.json')
+        if: steps.check_package.outputs.exists != 'true'
         run: |
-          echo "No test command configured"
+          echo "No package.json found"
           echo "Add your test command here:"
           echo "  - pytest"
           echo "  - go test ./..."
@@ -71,30 +74,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check for package.json
+        id: check_package_build
+        run: |
+          if [ -f "package.json" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup Node.js
+        if: steps.check_package_build.outputs.exists == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        if: file_exists('package.json')
+        if: steps.check_package_build.outputs.exists == 'true'
         run: npm ci
 
       - name: Build
-        if: file_exists('package.json')
+        if: steps.check_package_build.outputs.exists == 'true'
         run: npm run build
 
       - name: Build (placeholder)
-        if: !file_exists('package.json')
+        if: steps.check_package_build.outputs.exists != 'true'
         run: |
-          echo "No build command configured"
+          echo "No package.json found"
           echo "Add your build command here:"
           echo "  - npm run build"
           echo "  - go build -o app"
           echo "  - cargo build --release"
 
       - name: Upload build artifact
-        if: file_exists('package.json') && runner.os == 'Linux'
+        if: steps.check_package_build.outputs.exists == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: dist

@@ -1,6 +1,17 @@
 name: "Reusable: Test"
 
 # A reusable test workflow that can be called by other workflows
+# Usage:
+#   jobs:
+#     test:
+#       uses: your-org/awesome-workflows/.github/workflows/reusable-test.yml@v1
+#       with:
+#         node_version: '20'
+#         test_command: 'npm test'
+#         coverage: true
+#       secrets:
+#         npm_token: ${{ secrets.NPM_TOKEN }}
+#         codecov_token: ${{ secrets.CODECOV_TOKEN }}
 
 on:
   workflow_call:
@@ -19,10 +30,14 @@ on:
         default: true
     secrets:
       npm_token:
-        required: true
+        required: false
+        default: ''
+      codecov_token:
+        required: false
+        default: ''
     outputs:
       test_result:
-        description: "Result of the tests"
+        description: "Result of the tests (success or failure)"
         value: ${{ jobs.test.outputs.result }}
 
 jobs:
@@ -31,35 +46,42 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.test-runner.outputs.result }}
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           registry-url: 'https://registry.npmjs.org'
-      
+
       - name: Install dependencies
+        if: inputs.npm_token != ''
         run: npm ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.npm_token }}
-      
+
+      - name: Install dependencies (no auth)
+        if: inputs.npm_token == ''
+        run: npm ci
+
       - name: Run tests
         id: test-runner
         run: |
-          result="success"
-          if ! ${{ inputs.test_command }}; then
-            result="failure"
-          fi
-          echo "result=$result" >> $GITHUB_OUTPUT
-      
+          echo "result=success" >> $GITHUB_OUTPUT
+          ${{ inputs.test_command }} || echo "result=failure" >> $GITHUB_OUTPUT
+
       - name: Upload coverage
-        if: inputs.coverage && always()
+        if: inputs.coverage && inputs.codecov_token != ''
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.codecov_token }}
           files: ./coverage/lcov.info
           fail_ci_if_error: false
+
+      - name: Show coverage info
+        if: inputs.coverage && inputs.codecov_token == ''
+        run: |
+          echo "Coverage reporting skipped (CODECOV_TOKEN not provided)"

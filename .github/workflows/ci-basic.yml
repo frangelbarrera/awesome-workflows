@@ -1,6 +1,7 @@
 name: "CI: Basic"
 
 # This is a basic CI workflow for any project
+# Use this as a template for your own projects
 
 on:
   push:
@@ -10,68 +11,90 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Lint code
         run: |
           echo "Running linter..."
           # Add your linting command here
-          # npm run lint
-          # flake8
-          # golangci-lint run
+          # Examples:
+          # - npm run lint
+          # - flake8 .
+          # - golangci-lint run
+          # - ruff check .
+          echo "Linting complete (placeholder)"
 
   test:
     name: Test
-    needs: lint
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-      
+
       - name: Install dependencies
+        if: file_exists('package.json')
         run: npm ci
-      
+
       - name: Run tests
+        if: file_exists('package.json')
         run: npm test
+
+      - name: Run tests (placeholder)
+        if: !file_exists('package.json')
+        run: |
+          echo "No test command configured"
+          echo "Add your test command here:"
+          echo "  - pytest"
+          echo "  - go test ./..."
+          echo "  - cargo test"
+          echo "  - mvn test"
 
   build:
     name: Build
-    needs: test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-      
+
       - name: Install dependencies
+        if: file_exists('package.json')
         run: npm ci
-      
+
       - name: Build
+        if: file_exists('package.json')
         run: npm run build
-      
+
+      - name: Build (placeholder)
+        if: !file_exists('package.json')
+        run: |
+          echo "No build command configured"
+          echo "Add your build command here:"
+          echo "  - npm run build"
+          echo "  - go build -o app"
+          echo "  - cargo build --release"
+
       - name: Upload build artifact
+        if: file_exists('package.json') && runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
           name: dist

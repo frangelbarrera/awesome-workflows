@@ -1,6 +1,7 @@
 name: "Security: Scan"
 
 # Security scanning workflow for detecting vulnerabilities
+# Runs on pushes to main, PRs to main, and weekly on Sundays
 
 on:
   push:
@@ -8,7 +9,8 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '0 0 * * 0'  # Weekly scan on Sunday
+    - cron: '0 0 * * 0'  # Weekly scan on Sunday at midnight UTC
+  workflow_dispatch:  # Allow manual triggering
 
 permissions:
   contents: read
@@ -21,31 +23,31 @@ jobs:
     permissions:
       security-events: write
       contents: read
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: javascript, python
           queries: security-extended
-      
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:${{ matrix.language }}"
+          category: "/language:javascript"
           upload: true
 
   dependency-scan:
     name: Dependency Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -54,7 +56,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
-      
+
       - name: Upload Trivy results
         uses: github/codeql-action/upload-sarif@v3
         if: always()
@@ -64,13 +66,13 @@ jobs:
   secret-scan:
     name: Secret Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      
+
       - name: TruffleHog Secrets Scan
         uses: trufflesecurity/truffleHog-action@v1.2.1
         with:

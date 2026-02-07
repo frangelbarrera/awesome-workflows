@@ -1,0 +1,94 @@
+name: "Lint: Workflows"
+
+# Lint and validate all workflow files in this repository
+
+on:
+  push:
+    paths:
+      - '.github/workflows/*.yml'
+      - '.github/workflows/*.yaml'
+  pull_request:
+    paths:
+      - '.github/workflows/*.yml'
+      - '.github/workflows/*.yaml'
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly lint on Monday at 6 AM UTC
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: ActionLint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1.6.27
+        with:
+          glob: '.github/workflows/**/*.{yml,yaml}'
+          markdown:
+            format: 'gfm'
+            output: 'actionlint-results.md'
+      
+      - name: Upload lint results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actionlint-results
+          path: actionlint-results.md
+
+  yaml-lint:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Install yamllint
+        run: pip install yamllint
+      
+      - name: Run yamllint
+        run: |
+          yamllint -c .yamllint.yaml .github/workflows/
+
+  workflow-validate:
+    name: Validate Workflow Structure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Validate workflows
+        run: |
+          echo "Validating workflow files..."
+          
+          # Check for required fields
+          for file in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "Checking: $file"
+              
+              # Check for 'name' field
+              if ! grep -q "^name:" "$file"; then
+                echo "ERROR: $file missing 'name' field"
+                exit 1
+              fi
+              
+              # Check for 'on' trigger
+              if ! grep -q "^on:" "$file"; then
+                echo "ERROR: $file missing 'on' trigger"
+                exit 1
+              fi
+              
+              echo "✓ $file is valid"
+            fi
+          done
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true

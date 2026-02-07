@@ -1,0 +1,73 @@
+# Dependabot configuration for GitHub Actions
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - frangelbarrera
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "all"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+    ignore: []
+
+  # npm dependencies (if using Node.js in workflows)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 20
+    labels:
+      - "dependencies"
+      - "npm"
+    versioning-strategy: increase
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "all"
+    groups:
+      development-dependencies:
+        patterns:
+          - "@types/*"
+          - "eslint*"
+          - "prettier*"
+        dependency-type: "development"
+      production-dependencies:
+        patterns:
+          - "*"
+        dependency-type: "production"
+
+  # Python dependencies (if using Python in workflows)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 20
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "chore"
+      prefix-development: "chore"
+      include: "all"

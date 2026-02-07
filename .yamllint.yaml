@@ -1,0 +1,47 @@
+# YAML Lint Configuration
+# https://yamllint.readthedocs.io/en/stable/configuration.html
+
+extends: default
+
+rules:
+  # Disable key-ordering rule (too strict)
+  key-ordering: disable
+  
+  # Allow long lines (common in YAML with long URLs)
+  line-length:
+    level: warning
+    max: 200
+  
+  # Allow trailing spaces in some cases
+  trailing-spaces:
+    level: warning
+  
+  # Allow multiple documents (common in YAML)
+  document-start: disable
+  
+  # Allow comments
+  comments:
+    require-starting-space: true
+    min-spaces-from-content: 1
+  
+  # Allow empty values
+  empty-values: disable
+  
+  # Allow flow scalars
+  flow-level: disable
+  
+  # Allow quoted strings (sometimes needed)
+  quoted-strings:
+    disable: true
+  
+  # Allow octal values (sometimes needed in permissions)
+  octal-values:
+    disable: true
+
+ignore: |
+  .git/
+  node_modules/
+  vendor/
+  *.egg-info/
+  dist/
+  build/

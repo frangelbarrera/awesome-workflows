@@ -1,0 +1,73 @@
+name: 💡 Feature Request
+description: Suggest a new workflow, tool, or improvement
+labels: ["enhancement", "triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in improving this repository!
+        Please fill out this form to suggest a new feature or improvement.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 📌 Summary
+      description: A brief summary of the feature request.
+      placeholder: Short, descriptive title
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🌍 Problem Statement
+      description: |
+        What problem does this feature solve?
+        Describe the pain point or gap in current functionality.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: |
+        Describe your proposed solution.
+        Include any relevant workflow examples or pseudocode.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternatives Considered
+      description: |
+        What other solutions have you considered?
+        Why did you choose this approach?
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: 📂 Category
+      description: Which category does this feature belong to?
+      options:
+        - CI/CD & SDLC
+        - Web Development
+        - Mobile Development
+        - Security
+        - Infrastructure & IaC
+        - MLOps & Data Science
+        - Documentation
+        - Community Management
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 📎 Additional Context
+      description: Add any other context, screenshots, or references.

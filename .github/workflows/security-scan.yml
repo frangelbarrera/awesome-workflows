@@ -9,8 +9,8 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: '0 0 * * 0'  # Weekly scan on Sunday at midnight UTC
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -51,11 +51,9 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog Secrets Scan
-        uses: trufflesecurity/truffleHog-action@v1.2.1
+        uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base_depth: 10
-          extra_args: --debug
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

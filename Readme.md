@@ -846,7 +846,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **GitHub Issues**: For bugs and feature requests
 - **Discussions**: For questions and general discussion
-- **Twitter**: [@frangelbarrera](https://twitter.com/frangelbarrera)
+- **Twitter**: [@frangelbarrera](https://twitter.com/frangelbarrerax)
 
 ---
 
